@@ -12,13 +12,17 @@ app.get('/instagram', async (req, res) => {
     try {
         const response = await axios.get(`https://graph.instagram.com/${INSTAGRAM_USER_ID}/media`, {
             params: {
-                fields: 'id,caption,media_url,permalink',
+                fields: 'id,caption,media_type,media_url,permalink',
                 access_token: INSTAGRAM_TOKEN,
                 limit: 5
             }
         });
-        res.json(response.data.data);
+
+        // Filtrovat pro zahrnutí pouze obrázků a reels
+        const mediaPosts = response.data.data.filter(post => post.media_type === 'IMAGE' || post.media_type === 'REEL');
+        res.json(mediaPosts);
     } catch (error) {
+        console.error('Error fetching Instagram data:', error);
         res.status(500).send('Error fetching Instagram data');
     }
 });
